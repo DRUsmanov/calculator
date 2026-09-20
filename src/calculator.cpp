@@ -61,6 +61,7 @@ void makeTask(int argc, char* argv[], Task& task)
                 }
                 else
                 {
+                    printf("Overflow x\n");
                     return;
                 }
             };
@@ -74,6 +75,7 @@ void makeTask(int argc, char* argv[], Task& task)
                 }
                 else
                 {
+                    printf("Overflow x\n");
                     return;
                 }
             }
@@ -105,6 +107,7 @@ void makeCalculate(Task& task)
 {
     if (!task.status)
     {
+        printf("Task not ready for calculating\n");
         return;
     }
     task.status = false;
@@ -149,6 +152,7 @@ void makeCalculate(Task& task)
     }
     if (result.error)
     {
+        printf("Calculation error\n");
         return;
     }
     task.result = result.result;
@@ -169,10 +173,6 @@ void printResult(const Task& task)
     {
         printf("%d\n", task.result);
         return;
-    }
-    if (errno != 0)
-    {
-        printf("Calculation error\n");
     }
 }
 
