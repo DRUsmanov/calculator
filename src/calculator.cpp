@@ -101,7 +101,10 @@ void makeTask(int argc, char* argv[], Task& task)
                 printf("Unknown option %c\n", optopt);
                 return;
             }
-            case 'h':
+            case 'h': {
+                printf(help);
+                return;
+            }
 
             default:
             {
@@ -116,7 +119,6 @@ void makeCalculate(Task& task)
 {
     if (!task.status)
     {
-        printf("Task not ready for calculating\n");
         return;
     }
     task.status = false;
