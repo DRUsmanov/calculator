@@ -6,6 +6,13 @@
 
 #include <climits>
 
+const char* help{
+    R"(
+    Use -x <value> -o <operator> -y <value>\n
+    Available operators: +, -, *, /, ^, !
+    )"
+};
+
 struct Task
 {
     int x = 0;
@@ -47,7 +54,7 @@ void makeTask(int argc, char* argv[], Task& task)
 {
     int opt;
     task.status = false;
-    while ((opt = getopt(argc, argv, ":x:o:y:")) != -1)
+    while ((opt = getopt(argc, argv, ":x:o:y:h")) != -1)
     {
         switch (opt)
         {
@@ -94,6 +101,8 @@ void makeTask(int argc, char* argv[], Task& task)
                 printf("Unknown option %c\n", optopt);
                 return;
             }
+            case 'h':
+
             default:
             {
                 return;
