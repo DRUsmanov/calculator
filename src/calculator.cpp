@@ -8,10 +8,9 @@
 
 const char* help{
     R"(
-    Use -x <value> -o <operator> -y <value>\n
+    Use -x <value> -o <operator> -y <value>
     Available operators: +, -, *, /, ^, !
-    )"
-};
+    )"};
 
 struct Task
 {
@@ -101,8 +100,9 @@ void makeTask(int argc, char* argv[], Task& task)
                 printf("Unknown option %c\n", optopt);
                 return;
             }
-            case 'h': {
-                printf(help);
+            case 'h':
+            {
+                printf("%s", help);
                 return;
             }
 
