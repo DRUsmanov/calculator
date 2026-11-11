@@ -1,39 +1,47 @@
 #include "calculator/calculator.h"
-#include <getopt.h>
-#include <iostream>
-#include <nlohmann/json.hpp>
-#include <stdexcept>
-#include <math_functions.h>
+
 #include "logger/logger.h"
+
+#include <getopt.h>
+#include <math_functions.h>
+
+#include <nlohmann/json.hpp>
+
 #include <format>
+#include <iostream>
+#include <stdexcept>
 #include <string>
 
-namespace calculator {
+namespace calculator
+{
 
 using nlohmann::json;
 
 void Application::run(int argc, char* argv[])
 {
-    try {
-        if(processFlags(argc, argv)){
+    try
+    {
+        if (processFlags(argc, argv))
+        {
             return;
         }
         makeTask(argc, argv);
         makeCalculate();
         printResult();
     }
-    catch(const std::exception& exp){
+    catch (const std::exception& exp)
+    {
         logger::Logger::instance().logError(exp.what());
         std::cout << exp.what() << std::endl;
     }
-
 }
 
 void Application::makeTask(int argc, char* argv[])
 {
     logger::Logger::instance().logInfo("Start making task");
 
-    if (argc < 2) {
+    if (argc < 2)
+    {
         logger::Logger::instance().logError("No function for making task");
         return;
     }
@@ -49,7 +57,7 @@ void Application::makeTask(int argc, char* argv[])
 
 void Application::makeCalculate()
 {
-    logger::Logger::instance().logInfo("Start task calculating");    
+    logger::Logger::instance().logInfo("Start task calculating");
 
     if (!task_.status)
     {
@@ -92,7 +100,8 @@ void Application::makeCalculate()
         }
         default:
         {
-            logger::Logger::instance().logError(std::format("Unknown operator {}", task_.op));
+            logger::Logger::instance().logError(
+                std::format("Unknown operator {}", task_.op));
             return;
         }
     }
@@ -139,10 +148,8 @@ bool Application::processFlags(int argc, char* argv[]) const
 {
     logger::Logger::instance().logInfo("Start prcessing flags");
 
-    static constexpr option long_options[] {
-        {"help", no_argument, 0, 'h'},
-        {0,0,0,0}
-    };
+    static constexpr option long_options[]{{"help", no_argument, 0, 'h'},
+                                           {0, 0, 0, 0}};
 
     int opt;
 
@@ -152,12 +159,14 @@ bool Application::processFlags(int argc, char* argv[]) const
         {
             case ':':
             {
-                logger::Logger::instance().logError(std::format("No arguments for {}", optopt));
+                logger::Logger::instance().logError(
+                    std::format("No arguments for {}", optopt));
                 return true;
             }
             case '?':
             {
-                logger::Logger::instance().logError(std::format("Unknown option {}", optopt));
+                logger::Logger::instance().logError(
+                    std::format("Unknown option {}", optopt));
                 return true;
             }
             case 'h':
@@ -171,4 +180,4 @@ bool Application::processFlags(int argc, char* argv[]) const
     return false;
 }
 
-} // namesapce calculator
+} // namespace calculator

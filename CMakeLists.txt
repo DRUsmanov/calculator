@@ -49,6 +49,10 @@ src/logger/*cpp
 
 add_library(source STATIC ${SOURCE})
 target_include_directories(source PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(source PRIVATE math::math nlohmann_json::nlohmann_json spdlog::spdlog)
+
+add_executable(calculator src/main.cpp)
+target_link_libraries(calculator PRIVATE source)
 
 if(USE_CLANG_FORMAT_CHECK)
 	find_program(CLANG_FORMAT_PATH NAMES clang-format-21 REQUIRED)
@@ -59,15 +63,6 @@ if(USE_CLANG_FORMAT_CHECK)
 
     add_custom_target(clang-format-check
             COMMAND
-                ${CLANG_FORMAT_PATH} -style=file -i ${CLANG_FORMAT_SRC}
-            WORKING_DIRECTORY
-                ${CMAKE_SOURCE_DIR}
-            COMMENT
-                "Formatting ${CLANG_FORMAT_DEMO} with ${CLANG_FORMAT_PATH} ..."
-    )
-
-    add_custom_target(clang-format
-            COMMAND
                 run-clang-format.py --clang-format-executable=${CLANG_FORMAT_PATH} --style=file ${CLANG_FORMAT_SRC}
             WORKING_DIRECTORY
                 ${CMAKE_SOURCE_DIR}
@@ -75,7 +70,7 @@ if(USE_CLANG_FORMAT_CHECK)
                 "Checking format ${CLANG_FORMAT_DEMO} with ${CLANG_FORMAT_PATH} ..."
     )
 
-    add_dependencies(calculator clang-format)
+    add_dependencies(source clang-format-check)
 endif()
 
 if(USE_CLANG_FORMAT_FIX)
@@ -97,7 +92,7 @@ if(USE_CLANG_FORMAT_FIX)
             "Formatting ${CLANG_FORMAT_DEMO} with ${CLANG_FORMAT_PATH} ..."
     )
 
-    add_dependencies(calculator clang-format-fix)
+    add_dependencies(source clang-format-fix)
 endif()
 
 if(USE_CLANG_TIDY)
@@ -107,10 +102,6 @@ if(USE_CLANG_TIDY)
     set_target_properties(calculator  PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 endif()
 
-target_link_libraries(source PRIVATE math::math nlohmann_json::nlohmann_json spdlog::spdlog)
-
-add_executable(calculator src/main.cpp)
-target_link_libraries(calculator PRIVATE source)
 
 #Tests
 

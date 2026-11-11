@@ -1,11 +1,14 @@
 #include <spdlog/spdlog.h>
-#include <string_view>
+
 #include <memory>
+#include <string_view>
 
-namespace logger {
+namespace logger
+{
 
-class Logger {
-public:
+class Logger
+{
+  public:
     static Logger& instance();
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
@@ -14,13 +17,13 @@ public:
 
     void logInfo(std::string_view msg);
     void logError(std::string_view msg);
-private:
+
+  private:
     Logger();
     ~Logger() = default;
 
-private:
+  private:
     std::shared_ptr<spdlog::logger> logger_ = nullptr;
-
 };
 
 } // namespace logger
