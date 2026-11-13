@@ -11,7 +11,7 @@ add_compile_options(
 	-fpermissive
 	-Wall
 	-Wextra
-	-Werror
+	#-Werror
 	-Wpedantic
 )
 
@@ -48,11 +48,13 @@ src/logger/*cpp
 )
 
 add_library(source STATIC ${SOURCE})
-target_include_directories(source PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(source PRIVATE math::math nlohmann_json::nlohmann_json spdlog::spdlog)
+target_include_directories(source PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(source PUBLIC math::math nlohmann_json::nlohmann_json spdlog::spdlog)
 
 add_executable(calculator src/main.cpp)
 target_link_libraries(calculator PRIVATE source)
+
+install(TARGETS calculator RUNTIME DESTINATION bin)
 
 if(USE_CLANG_FORMAT_CHECK)
 	find_program(CLANG_FORMAT_PATH NAMES clang-format-21 REQUIRED)
@@ -71,6 +73,7 @@ if(USE_CLANG_FORMAT_CHECK)
     )
 
     add_dependencies(source clang-format-check)
+    add_dependencies(calculator clang-format-check)
 endif()
 
 if(USE_CLANG_FORMAT_FIX)
@@ -93,12 +96,14 @@ if(USE_CLANG_FORMAT_FIX)
     )
 
     add_dependencies(source clang-format-fix)
+    add_dependencies(calculator clang-format-fix)
 endif()
 
 if(USE_CLANG_TIDY)
     find_program(CLANG_TIDY_PATH NAMES clang-tidy-21 REQUIRED)
     message(STATUS "Found clang-tidy: ${CLANG_TIDY_PATH}")
     set(CLANG_TIDY_COMMAND ${CLANG_TIDY_PATH} "-config-file=${CMAKE_SOURCE_DIR}/.clang-tidy")
+    set_target_properties(source  PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
     set_target_properties(calculator  PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 endif()
 

@@ -2,7 +2,7 @@
 #include "calculator/calculator.h"
 #include <sstream>
 
-class CaclculatorTest : public ::testing::Test, public calculator::Application {
+class CaclculatorTest : public ::testing::Test {
 protected:
     void SetUp() override {
         buffer.str() = "";
@@ -27,9 +27,11 @@ TEST_F(CaclculatorTest, Help){
     calculator::Application application;
     application.run(argc, argv);
 
-    auto expected = std::string(help_).append("\n");
+    std::string expected{R"(Use: calculator '{"value_1":<value_1>, "op":"<operator>", "value_2":<value_2>}'
+        Available operators: +, -, *, /, ^, !
+        Example: calculator '{"value_1":10,"op":"+","value_2":50}')"};
 
-    EXPECT_EQ(buffer.str(), expected);
+    EXPECT_EQ(buffer.str(), expected.append("\n"));
 }
 
 TEST_F(CaclculatorTest, Addition){

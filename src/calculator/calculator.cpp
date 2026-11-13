@@ -11,6 +11,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <limits>
 
 namespace calculator
 {
@@ -43,6 +44,7 @@ void Application::makeTask(int argc, char* argv[])
     if (argc < 2)
     {
         logger::Logger::instance().logError("No function for making task");
+        std::cout << help_ << std::endl;
         return;
     }
 
@@ -102,7 +104,7 @@ void Application::makeCalculate()
         {
             logger::Logger::instance().logError(
                 std::format("Unknown operator {}", task_.op));
-            return;
+            throw std::logic_error(std::format("Unknown operator {}", task_.op));
         }
     }
     if (result.error)
@@ -122,6 +124,7 @@ void Application::printResult() const
     if (task_.status)
     {
         std::cout << task_.result << std::endl;
+        logger::Logger::instance().logInfo(std::format("Calculating result: {}", task_.result));
         return;
     }
 
@@ -133,6 +136,12 @@ void Application::parseFunction(std::string_view function)
     logger::Logger::instance().logInfo("Start function parsing");
 
     json data = json::parse(function);
+
+    if (isCorrectInt(data.at("value_1")) && isCorrectInt(data.at("value_2")) && isCorrectOp(data.at("op")))
+    {
+        logger::Logger::instance().logInfo("JSON values is correct");
+    }
+
     auto value_1 = data["value_1"].get<int>();
     auto value_2 = data["value_2"].get<int>();
     auto op = data["op"].get<std::string>();
@@ -161,13 +170,13 @@ bool Application::processFlags(int argc, char* argv[]) const
             {
                 logger::Logger::instance().logError(
                     std::format("No arguments for {}", optopt));
-                return true;
+                throw std::invalid_argument(std::format("No arguments for {}", optopt));
             }
             case '?':
             {
                 logger::Logger::instance().logError(
                     std::format("Unknown option {}", optopt));
-                return true;
+                throw std::invalid_argument(std::format("Unknown option {}", optopt));
             }
             case 'h':
             {
@@ -178,6 +187,52 @@ bool Application::processFlags(int argc, char* argv[]) const
     }
     logger::Logger::instance().logInfo("No flags");
     return false;
+}
+
+bool Application::isCorrectInt(const json& value) const
+{
+    if(value.is_number_unsigned())
+    {
+        if(value.get<uint64_t>() > static_cast<uint64_t>(INT_MAX))
+        {
+            throw std::out_of_range("Overflow value");    
+        }
+        return true;
+    }
+
+    if(value.is_number_integer())
+    {
+        auto value_as_int64_t = value.get<int64_t>();
+        if(value_as_int64_t > INT_MAX || value_as_int64_t < INT_MIN)
+        {
+            throw std::out_of_range("Overflow value");  
+        }
+        return true;
+    }
+
+    throw std::invalid_argument("Incorrect value, must be int");    
+}
+
+bool Application::isCorrectOp(const json& value) const
+{
+    if(!value.is_string())
+    {
+        throw std::invalid_argument("Incorrect operator. Must be a string");
+    }
+
+    auto op = value.get<std::string>();
+
+    if(op.size() != 1){
+        throw std::invalid_argument("Incorrect operator size. Must be 1");
+    }
+    
+    auto op_pos = op.find_first_of("+-*/^!", 0);
+
+    if(op_pos == std::string::npos){
+        throw std::invalid_argument("Incorrect operator. Must be one of \"+-*/^!\"");
+    }
+
+    return true;
 }
 
 } // namespace calculator
