@@ -1,5 +1,6 @@
-#include <string_view>
 #include <nlohmann/json.hpp>
+
+#include <string_view>
 
 namespace calculator
 {

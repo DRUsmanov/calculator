@@ -9,9 +9,9 @@
 
 #include <format>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
-#include <limits>
 
 namespace calculator
 {
@@ -104,7 +104,8 @@ void Application::makeCalculate()
         {
             logger::Logger::instance().logError(
                 std::format("Unknown operator {}", task_.op));
-            throw std::logic_error(std::format("Unknown operator {}", task_.op));
+            throw std::logic_error(
+                std::format("Unknown operator {}", task_.op));
         }
     }
     if (result.error)
@@ -124,7 +125,8 @@ void Application::printResult() const
     if (task_.status)
     {
         std::cout << task_.result << std::endl;
-        logger::Logger::instance().logInfo(std::format("Calculating result: {}", task_.result));
+        logger::Logger::instance().logInfo(
+            std::format("Calculating result: {}", task_.result));
         return;
     }
 
@@ -137,7 +139,8 @@ void Application::parseFunction(std::string_view function)
 
     json data = json::parse(function);
 
-    if (isCorrectInt(data.at("value_1")) && isCorrectInt(data.at("value_2")) && isCorrectOp(data.at("op")))
+    if (isCorrectInt(data.at("value_1")) && isCorrectInt(data.at("value_2")) &&
+        isCorrectOp(data.at("op")))
     {
         logger::Logger::instance().logInfo("JSON values is correct");
     }
@@ -170,13 +173,15 @@ bool Application::processFlags(int argc, char* argv[]) const
             {
                 logger::Logger::instance().logError(
                     std::format("No arguments for {}", optopt));
-                throw std::invalid_argument(std::format("No arguments for {}", optopt));
+                throw std::invalid_argument(
+                    std::format("No arguments for {}", optopt));
             }
             case '?':
             {
                 logger::Logger::instance().logError(
                     std::format("Unknown option {}", optopt));
-                throw std::invalid_argument(std::format("Unknown option {}", optopt));
+                throw std::invalid_argument(
+                    std::format("Unknown option {}", optopt));
             }
             case 'h':
             {
@@ -191,45 +196,48 @@ bool Application::processFlags(int argc, char* argv[]) const
 
 bool Application::isCorrectInt(const json& value) const
 {
-    if(value.is_number_unsigned())
+    if (value.is_number_unsigned())
     {
-        if(value.get<uint64_t>() > static_cast<uint64_t>(INT_MAX))
+        if (value.get<uint64_t>() > static_cast<uint64_t>(INT_MAX))
         {
-            throw std::out_of_range("Overflow value");    
+            throw std::out_of_range("Overflow value");
         }
         return true;
     }
 
-    if(value.is_number_integer())
+    if (value.is_number_integer())
     {
         auto value_as_int64_t = value.get<int64_t>();
-        if(value_as_int64_t > INT_MAX || value_as_int64_t < INT_MIN)
+        if (value_as_int64_t > INT_MAX || value_as_int64_t < INT_MIN)
         {
-            throw std::out_of_range("Overflow value");  
+            throw std::out_of_range("Overflow value");
         }
         return true;
     }
 
-    throw std::invalid_argument("Incorrect value, must be int");    
+    throw std::invalid_argument("Incorrect value, must be int");
 }
 
 bool Application::isCorrectOp(const json& value) const
 {
-    if(!value.is_string())
+    if (!value.is_string())
     {
         throw std::invalid_argument("Incorrect operator. Must be a string");
     }
 
     auto op = value.get<std::string>();
 
-    if(op.size() != 1){
+    if (op.size() != 1)
+    {
         throw std::invalid_argument("Incorrect operator size. Must be 1");
     }
-    
+
     auto op_pos = op.find_first_of("+-*/^!", 0);
 
-    if(op_pos == std::string::npos){
-        throw std::invalid_argument("Incorrect operator. Must be one of \"+-*/^!\"");
+    if (op_pos == std::string::npos)
+    {
+        throw std::invalid_argument(
+            "Incorrect operator. Must be one of \"+-*/^!\"");
     }
 
     return true;
